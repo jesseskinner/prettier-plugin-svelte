@@ -4,7 +4,7 @@ import { isASTNode, isPreTagContent } from './helpers';
 import { extractAttributes } from '../lib/extractAttributes';
 import { getText } from '../lib/getText';
 import { parseSortOrder, SortOrderPart } from '../options';
-import { hasSnippedContent, unsnipContent } from '../lib/snipTagContent';
+import { hasSnippedContent, unsnipContent, snipTagContent } from '../lib/snipTagContent';
 import { selfClosingTags, formattableAttributes } from '../lib/elements';
 import {
     canBreakBefore,
@@ -68,14 +68,17 @@ export function print(path: FastPath, options: ParserOptions, print: PrintFn): D
                     parts.push(path.call(print, 'module'));
                 }
                 if (n.instance) {
+                    const text = getText(n.instance, options);
+
                     n.instance.type = 'Script';
-                    n.instance.attributes = extractAttributes(getText(n.instance, options));
+                    n.instance.attributes = extractAttributes(text);
 
                     const contentAttribute = (n.instance.attributes as AttributeNode[]).find(
                         (n) => n.name === '✂prettier:content✂',
                     );
+
                     if (!contentAttribute) {
-                        throw new Error('No content attribute on script tag');
+                        n.instance.attributes = extractAttributes(snipTagContent('script', text, '{}'));
                     }
 
                     parts.push(path.call(print, 'instance'));
