@@ -1,6 +1,10 @@
 ```svelte
+<script type="module">
+    const greeting = "Hello";
+</script>
+
 <script>
-    let name = "world";
+    const name = "world";
 </script>
 
 <style>
@@ -9,5 +13,5 @@
     }
 </style>
 
-<h1>Hello, {name}!</h1>
+<h1>{greeting}, {name}!</h1>
 ```

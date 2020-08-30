@@ -1,5 +1,5 @@
 import { FastPath, Doc, doc, ParserOptions } from 'prettier';
-import { Node, MustacheTagNode, IfBlockNode } from './nodes';
+import { Node, MustacheTagNode, IfBlockNode, AttributeNode } from './nodes';
 import { isASTNode, isPreTagContent } from './helpers';
 import { extractAttributes } from '../lib/extractAttributes';
 import { getText } from '../lib/getText';
@@ -70,6 +70,14 @@ export function print(path: FastPath, options: ParserOptions, print: PrintFn): D
                 if (n.instance) {
                     n.instance.type = 'Script';
                     n.instance.attributes = extractAttributes(getText(n.instance, options));
+
+                    const contentAttribute = (n.instance.attributes as AttributeNode[]).find(
+                        (n) => n.name === '✂prettier:content✂',
+                    );
+                    if (!contentAttribute) {
+                        throw new Error('No content attribute on script tag');
+                    }
+
                     parts.push(path.call(print, 'instance'));
                 }
             },
